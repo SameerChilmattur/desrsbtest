@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gangaavatarana — Seva Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ HERO / INTRO ============ -->
+<header class="hero">
+  <div class="hero-inner">
+    <svg class="arch-motif" viewBox="0 0 200 120" aria-hidden="true">
+      <path d="M20 120 V60 A80 80 0 0 1 180 60 V120" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <circle cx="100" cy="34" r="6" fill="currentColor"/>
+      <path d="M100 40 L100 20 M92 28 L108 28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <p class="eyebrow">DE SRS Brundavan e.V.</p>
+    <h1>Gangaavatarana</h1>
+    <p class="hero-sub">Select your sevas, complete your details, and confirm your offering below. Every seva helps support the event and the Matha's ongoing seva activities.</p>
+  </div>
+</header>
+
+<div class="flame-divider" aria-hidden="true">
+  <svg viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a2 2 0 004 0c0-1.5-1-2-1-3.5 1.5 1 2.5 3 2.5 5a3.5 3.5 0 01-7 0c0-3.5 2.5-5 3.5-8.5z"/></svg>
+</div>
+
+<main>
+  <!-- ============ SEVA SELECTION ============ -->
+  <section class="sevas-section" id="sevas">
+    <h2>Choose your sevas</h2>
+    <p class="section-hint">Adjust the quantity for each seva you'd like to offer. Your total updates automatically.</p>
+    <div id="seva-list" class="seva-grid"></div>
+  </section>
+
+  <!-- ============ ORDER SUMMARY ============ -->
+  <aside class="order-summary" id="order-summary">
+    <h3>Your offering</h3>
+    <ul id="summary-list" class="summary-list">
+      <li class="summary-empty">No sevas selected yet</li>
+    </ul>
+    <div class="summary-total">
+      <span>Total</span>
+      <span id="summary-total-amount">€0.00</span>
+    </div>
+  </aside>
+
+  <div class="flame-divider" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a2 2 0 004 0c0-1.5-1-2-1-3.5 1.5 1 2.5 3 2.5 5a3.5 3.5 0 01-7 0c0-3.5 2.5-5 3.5-8.5z"/></svg>
+  </div>
+
+  <!-- ============ REGISTRANT DETAILS ============ -->
+  <section class="form-section" id="registrant-form">
+    <h2>Your details</h2>
+    <form id="details-form" novalidate>
+      <div class="field">
+        <label for="fullName">Full name *</label>
+        <input type="text" id="fullName" name="fullName" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="phone">Phone number *</label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel">
+      </div>
+      <div class="field">
+        <label for="email">Email address *</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="address">Address *</label>
+        <textarea id="address" name="address" rows="3" required autocomplete="street-address"></textarea>
+      </div>
+      <div class="field checkbox-field">
+        <input type="checkbox" id="consent" name="consent" required>
+        <label for="consent">I agree that my details will be stored to process this registration and sent by email as a confirmation. See the privacy note in the footer. *</label>
+      </div>
+      <p class="form-error" id="form-error" role="alert"></p>
+    </form>
+  </section>
+
+  <div class="flame-divider" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a2 2 0 004 0c0-1.5-1-2-1-3.5 1.5 1 2.5 3 2.5 5a3.5 3.5 0 01-7 0c0-3.5 2.5-5 3.5-8.5z"/></svg>
+  </div>
+
+  <!-- ============ PAYMENT ============ -->
+  <section class="payment-section" id="payment">
+    <h2>Complete your offering</h2>
+    <p class="section-hint">Pay securely with PayPal or your Visa / Mastercard debit or credit card — no PayPal account required for card payment.</p>
+    <div id="paypal-button-container"></div>
+    <p class="payment-status" id="payment-status" aria-live="polite"></p>
+  </section>
+
+  <!-- ============ CONFIRMATION ============ -->
+  <section class="confirmation hidden" id="confirmation">
+    <svg class="confirm-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h2>Your offering is confirmed</h2>
+    <p id="confirmation-message">A confirmation has been sent to your email.</p>
+    <p class="confirmation-order-id" id="confirmation-order-id"></p>
+  </section>
+</main>
+
+<footer>
+  <p>DE SRS Brundavan e.V. — Stuttgart, Germany</p>
+  <p class="privacy-note">Your name, phone number, email and address are stored to process and confirm this registration, and are shared with our payment provider (PayPal) and email service (EmailJS) solely for that purpose. Data is retained only as long as needed for the event and accounting records. Contact us to request access, correction, or deletion of your details.</p>
+</footer>
+
+<!-- PayPal JS SDK — replace client-id below with your own -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR&intent=capture"></script>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- Firebase SDK (modular, loaded as ES module) + app logic -->
+<script type="module" src="app.js"></script>
+</body>
+</html>
