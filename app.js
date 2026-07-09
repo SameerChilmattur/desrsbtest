@@ -4,22 +4,20 @@
 
 // Firebase project config (Firebase console → Project settings → Your apps → SDK config)
 const firebaseConfig = {
-  apiKey: "AIzaSyBwG-okIIgGisDmLcp39NtNSWbxDsdy4l4",
-  authDomain: "desrsb2026.firebaseapp.com",
-  projectId: "desrsb2026",
-  storageBucket: "desrsb2026.firebasestorage.app",
-  messagingSenderId: "401456213585",
-  appId: "1:401456213585:web:34b43a500e0337bba59270",
-  measurementId: "G-GFLSTH27ZZ"
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
-// EmailJS config (emailjs.com → Account → General)
-const EMAILJS_PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
-const EMAILJS_SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "YOUR_EMAILJS_TEMPLATE_ID";
+// Google Apps Script Web App URL (see SETUP_INSTRUCTIONS.md, section 2)
+// Looks like: https://script.google.com/macros/s/AKfycb.../exec
+const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 
 // Event name shown in the confirmation email
-const EVENT_NAME = "Raghavendra Aradhane";
+const EVENT_NAME = "Sri Raghavendra Aradhana Mahotsava 2026";
 
 // The list of sevas on offer. Edit freely — add, remove, rename, reprice.
 const SEVAS = [
@@ -32,7 +30,7 @@ const SEVAS = [
 ];
 
 // =====================================================================
-// 2. FIREBASE + EMAILJS INITIALIZATION
+// 2. FIREBASE INITIALIZATION
 // =====================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -45,9 +43,6 @@ import {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
-
-// emailjs is loaded globally via the <script> tag in index.html
-emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
 // =====================================================================
 // 3. STATE
@@ -246,16 +241,25 @@ async function handleSuccessfulPayment(details) {
   const sevaSummaryText = selected.map(s => `${s.name} x${s.qty} — €${s.lineTotal.toFixed(2)}`).join("\n");
 
   try {
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      to_name: formData.fullName,
-      to_email: formData.email,
-      event_name: EVENT_NAME,
-      seva_summary: sevaSummaryText,
-      total_amount: total.toFixed(2),
-      order_id: orderId
+    // Content-Type text/plain avoids a CORS preflight, which Apps Script Web Apps
+    // don't handle. The script itself parses the body as JSON on its side.
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        to_name: formData.fullName,
+        to_email: formData.email,
+        event_name: EVENT_NAME,
+        seva_summary: sevaSummaryText,
+        total_amount: total.toFixed(2),
+        order_id: orderId
+      })
     });
   } catch (err) {
-    console.error("EmailJS send failed:", err);
+    // Payment and Firestore save already succeeded — a failed email send
+    // shouldn't block the confirmation screen. Logged here so you can notice
+    // and manually follow up if it keeps happening.
+    console.error("Confirmation email send failed:", err);
   }
 
   showConfirmation(orderId);
