@@ -1,0 +1,6 @@
+# Local dev / tooling — not part of the deployed site
+.claude/
+serve.ps1
+
+# Original source image (logo.jpeg is the copy actually used by the site)
+WhatsApp Image *.jpeg

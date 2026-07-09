@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /registrations/{registrationId} {
+
+      // Anyone can CREATE a registration (this is how the public form saves data),
+      // but only if it has the expected shape. totalAmount can be 0 (Free Darshana).
+      allow create: if request.resource.data.keys().hasAll(
+                        ['fullName', 'phone', 'email', 'address', 'participants', 'sevas',
+                         'totalAmount', 'paymentMethod', 'paymentStatus', 'orderId', 'createdAt']
+                      )
+                    && request.resource.data.totalAmount is number
+                    && request.resource.data.totalAmount >= 0
+                    && request.resource.data.fullName is string
+                    && request.resource.data.email is string
+                    && request.resource.data.orderId == registrationId;
+
+      // A single registration can be read directly by its exact document ID
+      // (i.e. only someone who already has the ID/QR code) — this is what
+      // powers the entrance check-in page. Listing/querying the whole
+      // collection is still blocked, so registrations can't be enumerated.
+      allow get: if true;
+      allow list: if false;
+
+      // No one can update or delete from the client.
+      // Manage registrations from the Firebase console instead.
+      allow update, delete: if false;
+    }
+  }
+}
