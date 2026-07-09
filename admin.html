@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Seva Registrations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="admin-main">
+  <header class="admin-header">
+    <h1>Seva Registrations</h1>
+    <button type="button" id="logout-btn" class="admin-btn admin-btn-ghost hidden">Log out</button>
+  </header>
+
+  <!-- ===== Login ===== -->
+  <section class="admin-login" id="login-view">
+    <h2>Organiser sign-in</h2>
+    <form id="login-form" class="admin-login-form">
+      <div class="field">
+        <label for="admin-email">Email</label>
+        <input type="email" id="admin-email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="admin-btn admin-btn-primary">Sign in</button>
+      <p class="form-error" id="login-error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- ===== Dashboard ===== -->
+  <section class="admin-dashboard hidden" id="dashboard-view">
+    <div class="admin-summary" id="admin-summary"></div>
+
+    <div class="admin-toolbar">
+      <div class="admin-filters" id="admin-filters">
+        <button type="button" class="admin-chip is-active" data-filter="all">All</button>
+        <button type="button" class="admin-chip" data-filter="pending">Not paid</button>
+        <button type="button" class="admin-chip" data-filter="paid">Paid</button>
+        <button type="button" class="admin-chip" data-filter="not_required">Free</button>
+      </div>
+      <button type="button" id="refresh-btn" class="admin-btn admin-btn-ghost">Refresh</button>
+    </div>
+
+    <p class="admin-status" id="admin-status">Loading registrations…</p>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="admin-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Sevas</th>
+            <th>Pax</th>
+            <th>Total</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>

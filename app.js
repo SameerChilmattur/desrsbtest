@@ -3,13 +3,7 @@
 // =====================================================================
 
 // Firebase config lives in firebase-config.js (shared with checkin.js).
-
-// Google Apps Script Web App URL (see SETUP_INSTRUCTIONS.md, section 2)
-// Looks like: https://script.google.com/macros/s/AKfycb.../exec
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwsDajdrQ8uw3BweWsmPNFg8GZTOrfZzkq1-5PbJmgzboD52115IbHCe_T7oO2IUOKwA/exec";
-
-// Event name shown in the confirmation email
-const EVENT_NAME = "Sri Raghavendra Aradhana Mahotsava 2026";
+// GOOGLE_SCRIPT_URL and EVENT_NAME live in config.js (shared with admin.js).
 
 // Temporary payment link — a plain paypal.me link, until a proper PayPal
 // Business "Smart Buttons" client-id is set up (see SETUP_INSTRUCTIONS.md,
@@ -43,6 +37,7 @@ const SEVAS = [
 // =====================================================================
 
 import { firebaseConfig } from "./firebase-config.js";
+import { GOOGLE_SCRIPT_URL, EVENT_NAME } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getFirestore,
@@ -329,16 +324,20 @@ function completeRegistration(method, total, orderId = `REG-${Date.now()}`) {
   // displays it — this is what the entrance QR code encodes.
   const checkinUrl = new URL(`checkin.html?id=${encodeURIComponent(orderId)}`, window.location.href).href;
 
-  // Render the confirmation + QR immediately. The Firestore write and email
-  // send happen in the background (below) so a slow, hanging, or failed
-  // save can never block the on-screen confirmation from appearing.
-  showConfirmation(orderId, method, paymentRequired, checkinUrl);
-
-  // Fire the save and the email INDEPENDENTLY. They must not be chained:
-  // if Firebase isn't configured yet, its write can stall indefinitely, and
-  // we don't want that to hold up (or skip) the confirmation email.
+  // Always save the registration.
   saveRegistration(registration, orderId);
-  sendConfirmationEmail(registration, selected, total, orderId, checkinUrl);
+
+  if (paymentRequired) {
+    // Paid sevas: the registration is only a REQUEST until an organiser
+    // confirms the payment in the admin dashboard. No QR and no confirmation
+    // email yet — those are sent when the organiser marks it paid.
+    showRequestReceived(orderId, method);
+  } else {
+    // Free Darshana: nothing to pay, so confirm immediately — show the QR
+    // on screen and email the confirmation right away.
+    showConfirmation(orderId, checkinUrl);
+    sendConfirmationEmail(registration, selected, total, orderId, checkinUrl);
+  }
 }
 
 async function saveRegistration(registration, orderId) {
@@ -380,26 +379,44 @@ async function sendConfirmationEmail(registration, selected, total, orderId, che
 // 9. CONFIRMATION VIEW
 // =====================================================================
 
-function showConfirmation(orderId, method, paymentRequired, checkinUrl) {
+function hideRegistrationSections() {
   document.getElementById("sevas").style.display = "none";
   document.getElementById("order-summary").style.display = "none";
   document.getElementById("registrant-form").style.display = "none";
   document.getElementById("payment").style.display = "none";
+}
 
-  let message = "A confirmation has been sent to your email.";
-  if (paymentRequired && method === "paypal") {
-    message = "Your registration is saved. Please complete the payment in the PayPal tab that opened — we'll confirm it once received.";
-  } else if (paymentRequired && method === "bank_transfer") {
-    message = "Your registration is saved. We'll confirm it once your bank transfer arrives.";
-  }
-  document.getElementById("confirmation-message").textContent = message;
+// Paid registration awaiting the organiser's payment confirmation — no QR yet.
+function showRequestReceived(orderId, method) {
+  hideRegistrationSections();
+
+  document.getElementById("confirmation-heading").textContent = "Registration request received";
+  document.getElementById("confirmation-message").textContent = method === "bank_transfer"
+    ? "Thank you. Once we've received and confirmed your bank transfer, we'll email you a confirmation with your entrance QR code."
+    : "Thank you. Once we've confirmed your PayPal payment, we'll email you a confirmation with your entrance QR code.";
+  document.getElementById("confirmation-order-id").textContent = "Registration reference: " + orderId;
+
+  // No QR until payment is confirmed by an organiser.
+  document.getElementById("confirmation-qr-card").classList.add("hidden");
 
   const confirmation = document.getElementById("confirmation");
   confirmation.classList.remove("hidden");
+  confirmation.scrollIntoView({ behavior: "smooth" });
+}
+
+// Free Darshana (or an already-confirmed registration) — show the QR now.
+function showConfirmation(orderId, checkinUrl) {
+  hideRegistrationSections();
+
+  document.getElementById("confirmation-heading").textContent = "Your registration is confirmed";
+  document.getElementById("confirmation-message").textContent = "A confirmation has been sent to your email.";
   document.getElementById("confirmation-order-id").textContent = "Registration reference: " + orderId;
 
+  document.getElementById("confirmation-qr-card").classList.remove("hidden");
   renderQrCode(document.getElementById("confirmation-qr"), checkinUrl);
 
+  const confirmation = document.getElementById("confirmation");
+  confirmation.classList.remove("hidden");
   confirmation.scrollIntoView({ behavior: "smooth" });
 }
 

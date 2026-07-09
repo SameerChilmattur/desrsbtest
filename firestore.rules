@@ -3,6 +3,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // The organiser account allowed to view all registrations and mark
+    // payments from the admin dashboard. IMPORTANT: replace this with the
+    // email of the Firebase Auth account you created for the admin, then
+    // Publish. Security depends on this — anyone else is refused list/update.
+    function isAdmin() {
+      return request.auth != null
+             && request.auth.token.email == "REPLACE_WITH_ADMIN_EMAIL";
+    }
+
     match /registrations/{registrationId} {
 
       // Anyone can CREATE a registration (this is how the public form saves data),
@@ -15,18 +24,25 @@ service cloud.firestore {
                     && request.resource.data.totalAmount >= 0
                     && request.resource.data.fullName is string
                     && request.resource.data.email is string
-                    && request.resource.data.orderId == registrationId;
+                    && request.resource.data.orderId == registrationId
+                    && request.resource.data.paymentStatus in ['pending', 'not_required'];
 
       // A single registration can be read directly by its exact document ID
-      // (i.e. only someone who already has the ID/QR code) — this is what
-      // powers the entrance check-in page. Listing/querying the whole
-      // collection is still blocked, so registrations can't be enumerated.
+      // (i.e. only someone who already has the ID/QR code) — this powers the
+      // entrance check-in page. The admin can also read individual docs.
       allow get: if true;
-      allow list: if false;
 
-      // No one can update or delete from the client.
-      // Manage registrations from the Firebase console instead.
-      allow update, delete: if false;
+      // Only the admin can list/query the whole collection (the dashboard).
+      allow list: if isAdmin();
+
+      // Only the admin can update — and only the payment fields, so a
+      // compromised admin session can't rewrite someone's personal details.
+      allow update: if isAdmin()
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['paymentStatus', 'paidAt'])
+                    && request.resource.data.paymentStatus in ['pending', 'paid', 'not_required'];
+
+      allow delete: if false;
     }
   }
 }
