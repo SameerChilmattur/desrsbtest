@@ -159,7 +159,8 @@ function getFormData() {
     address: form.address.value.trim(),
     firstVisit: firstVisitEl ? firstVisitEl.value : "",
     participants: parseInt(form.participants.value, 10) || 1,
-    consent: form.consent.checked
+    consent: form.consent.checked,
+    mediaConsent: form.mediaConsent.checked
   };
 }
 
@@ -185,6 +186,10 @@ function validateForm() {
   }
   if (!data.consent) {
     formErrorEl.textContent = "Please confirm you agree to the data use note before continuing.";
+    return false;
+  }
+  if (!data.mediaConsent) {
+    formErrorEl.textContent = "Please confirm you agree to the photo and video use before continuing.";
     return false;
   }
   formErrorEl.textContent = "";
@@ -302,6 +307,7 @@ function completeRegistration(method, total, orderId = `REG-${Date.now()}`) {
     email: formData.email,
     address: formData.address,
     firstVisit: formData.firstVisit,
+    mediaConsent: formData.mediaConsent,
     participants: formData.participants,
     sevas: selected.map(s => ({ id: s.id, name: s.name, qty: s.qty, lineTotal: s.lineTotal })),
     totalAmount: total,

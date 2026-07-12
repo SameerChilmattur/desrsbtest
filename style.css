@@ -372,6 +372,7 @@ footer p { margin: 0.3rem 0; }
 .admin-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .admin-stat { background: var(--color-surface); border: 1px solid rgba(232,163,61,0.2); border-radius: var(--radius); padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.2rem; }
 .admin-stat-num { font-family: var(--font-display); font-size: 1.6rem; color: var(--color-text); }
+.admin-stat-pct { font-family: var(--font-body); font-size: 0.9rem; color: var(--color-text-muted); }
 .admin-stat-label { font-size: 0.8rem; color: var(--color-text-muted); }
 .admin-stat-good .admin-stat-num { color: #a8e6b3; }
 .admin-stat-warn .admin-stat-num { color: var(--color-gold-soft); }
