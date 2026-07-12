@@ -9,7 +9,7 @@ service cloud.firestore {
     // Publish. Security depends on this — anyone else is refused list/update.
     function isAdmin() {
       return request.auth != null
-             && request.auth.token.email == "REPLACE_WITH_ADMIN_EMAIL";
+             && request.auth.token.email == "sameer.cb@gmail.com";
     }
 
     match /registrations/{registrationId} {
