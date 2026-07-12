@@ -107,15 +107,26 @@ async function loadRegistrations() {
 }
 
 function renderSummary() {
+  const total = registrations.length;
   const paid = registrations.filter((r) => r.paymentStatus === "paid");
   const pending = registrations.filter((r) => r.paymentStatus === "pending");
   const free = registrations.filter((r) => r.paymentStatus === "not_required");
   const sum = (list) => list.reduce((t, r) => t + (r.totalAmount || 0), 0);
 
+  const firstTimers = registrations.filter((r) => r.firstVisit === "yes").length;
+  const repeat = registrations.filter((r) => r.firstVisit === "no").length;
+  const withSeva = registrations.filter((r) => r.sevas && r.sevas.length > 0).length;
+  const pct = (n) => total ? Math.round((n / total) * 100) : 0;
+  const totalParticipants = registrations.reduce((t, r) => t + (r.participants || 0), 0);
+
   summaryEl.innerHTML = `
-    <div class="admin-stat"><span class="admin-stat-num">${registrations.length}</span><span class="admin-stat-label">Registrations</span></div>
+    <div class="admin-stat"><span class="admin-stat-num">${total}</span><span class="admin-stat-label">Registrations</span></div>
+    <div class="admin-stat"><span class="admin-stat-num">${totalParticipants}</span><span class="admin-stat-label">Total participants</span></div>
     <div class="admin-stat admin-stat-good"><span class="admin-stat-num">€${sum(paid).toFixed(2)}</span><span class="admin-stat-label">Collected (${paid.length} paid)</span></div>
     <div class="admin-stat admin-stat-warn"><span class="admin-stat-num">€${sum(pending).toFixed(2)}</span><span class="admin-stat-label">Awaiting payment (${pending.length})</span></div>
+    <div class="admin-stat"><span class="admin-stat-num">${firstTimers} <span class="admin-stat-pct">(${pct(firstTimers)}%)</span></span><span class="admin-stat-label">First-time visitors</span></div>
+    <div class="admin-stat"><span class="admin-stat-num">${repeat} <span class="admin-stat-pct">(${pct(repeat)}%)</span></span><span class="admin-stat-label">Repeat visitors</span></div>
+    <div class="admin-stat"><span class="admin-stat-num">${pct(withSeva)}%</span><span class="admin-stat-label">Opted for a seva (${withSeva} of ${total})</span></div>
     <div class="admin-stat"><span class="admin-stat-num">${free.length}</span><span class="admin-stat-label">Free Darshana</span></div>
   `;
 }
