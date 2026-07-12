@@ -35,6 +35,12 @@
   <section class="form-section" id="registrant-form">
     <h2>Your details</h2>
     <form id="details-form" novalidate>
+      <!-- Honeypot: invisible to real visitors, but simple bots that
+           auto-fill every form field will fill this in. Left empty = human. -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Leave this field blank</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
       <div class="field">
         <label for="fullName">Full name *</label>
         <input type="text" id="fullName" name="fullName" required autocomplete="name">

@@ -35,9 +35,13 @@ const SEVAS = [
 // 2. FIREBASE INITIALIZATION
 // =====================================================================
 
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig, RECAPTCHA_V3_SITE_KEY } from "./firebase-config.js";
 import { GOOGLE_SCRIPT_URL, EVENT_NAME } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
 import {
   getFirestore,
   doc,
@@ -46,6 +50,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseApp = initializeApp(firebaseConfig);
+
+// Attaches a reCAPTCHA v3-verified token to every Firestore request from
+// this page, proving it's a real browser session rather than a script
+// hitting the Firestore API directly. Currently in MONITOR mode — the
+// firestore.rules "create" check doesn't require this token yet, so nothing
+// breaks if a token fails to attach. Once App Check metrics in the Firebase
+// Console look healthy, the rule can be tightened to require it.
+initializeAppCheck(firebaseApp, {
+  provider: new ReCaptchaV3Provider(RECAPTCHA_V3_SITE_KEY),
+  isTokenAutoRefreshEnabled: true
+});
+
 const db = getFirestore(firebaseApp);
 
 // =====================================================================
@@ -167,6 +183,13 @@ function getFormData() {
 // Sevas are optional now: no selection = free darshana. Only the personal
 // details are required.
 function validateForm() {
+  // Honeypot: real visitors never see or fill this field. If it has a
+  // value, silently fail with the same generic message a normal validation
+  // failure would show, so bots don't learn the trap exists.
+  if (form.website.value.trim()) {
+    formErrorEl.textContent = "Please fill in all required fields.";
+    return false;
+  }
   const data = getFormData();
   if (!data.fullName || !data.phone || !data.email || !data.address) {
     formErrorEl.textContent = "Please fill in all required fields.";
