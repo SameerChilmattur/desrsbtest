@@ -1,14 +1,15 @@
 :root {
-  --color-bg: #1a1030;
-  --color-bg-alt: #21133b;
-  --color-surface: #2b1a4d;
-  --color-surface-raised: #35205e;
-  --color-text: #f4ecdd;
-  --color-text-muted: #c3b4dd;
-  --color-gold: #e8a33d;
-  --color-gold-soft: #f0c789;
-  --color-vermillion: #c1440e;
-  --color-error: #ff8a80;
+  --color-bg: #ddc79a;
+  --color-bg-alt: #d3ba86;
+  --color-surface: #fbf6ec;
+  --color-surface-raised: #f6efe0;
+  --color-text: #3a2414;
+  --color-text-muted: #6f5c46;
+  --color-gold: #b3781a;
+  --color-gold-soft: #8f5c12;
+  --color-vermillion: #a5320a;
+  --color-error: #b3261e;
+  --color-wine: #6d1f2c;
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Work Sans', -apple-system, sans-serif;
   --radius: 10px;
@@ -20,10 +21,19 @@
 
 body {
   margin: 0;
-  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
   line-height: 1.55;
+  /* Faint watermark: guru.jpg washed out by a near-opaque beige layer,
+     fixed so it stays centred while the page scrolls. */
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(rgba(221, 199, 154, 0.96), rgba(221, 199, 154, 0.96)),
+    url("guru.jpg");
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center top;
+  background-attachment: fixed, fixed;
+  background-size: cover, min(78vw, 540px) auto;
 }
 
 h1, h2, h3 {
@@ -34,7 +44,6 @@ h1, h2, h3 {
 
 /* ---------- Hero ---------- */
 .hero {
-  background: radial-gradient(ellipse at top, var(--color-surface) 0%, var(--color-bg) 70%);
   padding: 4rem 1.5rem 3rem;
   text-align: center;
 }
@@ -42,7 +51,7 @@ h1, h2, h3 {
 .org-logo {
   display: block;
   width: 100%;
-  max-width: 340px;
+  max-width: 408px;
   height: auto;
   margin: 0 auto 1.5rem;
   border-radius: var(--radius);
@@ -58,8 +67,8 @@ h1, h2, h3 {
   margin: 0 0 0.5rem;
 }
 .hero h1 {
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
-  color: var(--color-gold);
+  font-size: clamp(2.5rem, 6.8vw, 3.9rem);
+  color: var(--color-wine);
 }
 .hero-sub {
   color: var(--color-text-muted);
@@ -292,7 +301,7 @@ section { padding: 2.5rem 0; }
   margin-top: 1.4rem;
 }
 .qr-code { display: block; width: 220px; height: 220px; }
-.qr-hint { color: var(--color-bg); font-size: 0.85rem; margin: 0.6rem 0 0; }
+.qr-hint { color: var(--color-text); font-size: 0.85rem; margin: 0.6rem 0 0; }
 
 footer {
   text-align: center;
