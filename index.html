@@ -31,10 +31,60 @@
 </div>
 
 <main>
+  <!-- ============ REGISTRANT DETAILS ============ -->
+  <section class="form-section" id="registrant-form">
+    <h2>Your details</h2>
+    <form id="details-form" novalidate>
+      <div class="field">
+        <label for="fullName">Full name *</label>
+        <input type="text" id="fullName" name="fullName" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="phone">Phone number *</label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel">
+      </div>
+      <div class="field">
+        <label for="email">Email address *</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="address">Address *</label>
+        <textarea id="address" name="address" rows="3" required autocomplete="street-address"></textarea>
+      </div>
+      <div class="field">
+        <span class="field-label">Is this your first time visiting? *</span>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="firstVisit" value="yes" required> Yes</label>
+          <label class="radio-opt"><input type="radio" name="firstVisit" value="no"> No</label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="participants">Number of participants *</label>
+        <select id="participants" name="participants" required>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div class="field checkbox-field">
+        <input type="checkbox" id="consent" name="consent" required>
+        <label for="consent">I agree that my details will be stored to process this registration and sent by email as a confirmation. See the privacy note in the footer. *</label>
+      </div>
+      <p class="form-error" id="form-error" role="alert"></p>
+    </form>
+  </section>
+
+  <div class="flame-divider" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a2 2 0 004 0c0-1.5-1-2-1-3.5 1.5 1 2.5 3 2.5 5a3.5 3.5 0 01-7 0c0-3.5 2.5-5 3.5-8.5z"/></svg>
+  </div>
+
   <!-- ============ SEVA SELECTION ============ -->
   <section class="sevas-section" id="sevas">
     <h2>Choose your sevas</h2>
-    <p class="section-hint">Adjust the quantity for each seva you'd like to offer. Your total updates automatically.</p>
+    <p class="section-hint">Select one or more sevas you'd like to offer. If you don't select any, you'll be registered for a free darshana.</p>
     <div id="seva-list" class="seva-grid"></div>
   </section>
 
@@ -42,7 +92,7 @@
   <aside class="order-summary" id="order-summary">
     <h3>Your offering</h3>
     <ul id="summary-list" class="summary-list">
-      <li class="summary-empty">No sevas selected yet</li>
+      <li class="summary-empty">No sevas selected — free darshana</li>
     </ul>
     <div class="summary-total">
       <span>Total</span>
@@ -54,62 +104,18 @@
     <svg viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a2 2 0 004 0c0-1.5-1-2-1-3.5 1.5 1 2.5 3 2.5 5a3.5 3.5 0 01-7 0c0-3.5 2.5-5 3.5-8.5z"/></svg>
   </div>
 
-  <!-- ============ REGISTRANT DETAILS ============ -->
-  <section class="form-section locked" id="registrant-form">
-    <h2>Your details</h2>
-    <p class="lock-hint" id="registration-lock-hint">Select at least one seva above to continue.</p>
-    <form id="details-form" novalidate>
-      <div class="field">
-        <label for="fullName">Full name *</label>
-        <input type="text" id="fullName" name="fullName" required autocomplete="name" disabled>
-      </div>
-      <div class="field">
-        <label for="phone">Phone number *</label>
-        <input type="tel" id="phone" name="phone" required autocomplete="tel" disabled>
-      </div>
-      <div class="field">
-        <label for="email">Email address *</label>
-        <input type="email" id="email" name="email" required autocomplete="email" disabled>
-      </div>
-      <div class="field">
-        <label for="address">Address *</label>
-        <textarea id="address" name="address" rows="3" required autocomplete="street-address" disabled></textarea>
-      </div>
-      <div class="field">
-        <label for="participants">Number of participants *</label>
-        <select id="participants" name="participants" required disabled>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-        </select>
-      </div>
-      <div class="field checkbox-field">
-        <input type="checkbox" id="consent" name="consent" required disabled>
-        <label for="consent">I agree that my details will be stored to process this registration and sent by email as a confirmation. See the privacy note in the footer. *</label>
-      </div>
-      <p class="form-error" id="form-error" role="alert"></p>
-    </form>
-  </section>
+  <!-- ============ PAYMENT / CONFIRM ============ -->
+  <section class="payment-section" id="payment">
+    <h2>Complete your registration</h2>
+    <p class="section-hint" id="payment-hint"></p>
 
-  <div class="flame-divider" aria-hidden="true">
-    <svg viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a2 2 0 004 0c0-1.5-1-2-1-3.5 1.5 1 2.5 3 2.5 5a3.5 3.5 0 01-7 0c0-3.5 2.5-5 3.5-8.5z"/></svg>
-  </div>
-
-  <!-- ============ PAYMENT ============ -->
-  <section class="payment-section locked" id="payment">
-    <h2>Complete your offering</h2>
-    <p class="section-hint">Choose how you'd like to pay: PayPal (including card payment as a guest) or a direct bank transfer.</p>
-
-    <!-- Shown when the total is above €0 -->
+    <!-- Shown when at least one seva is selected (total above €0) -->
     <div class="payment-methods hidden" id="payment-methods">
       <button type="button" class="pay-btn pay-btn-paypal" id="pay-paypal">Pay with PayPal</button>
       <button type="button" class="pay-btn pay-btn-bank" id="pay-bank">Pay via Bank Transfer</button>
     </div>
 
-    <!-- Shown only when Free Darshana is the sole selection (no payment needed) -->
+    <!-- Shown when NO seva is selected (free darshana) -->
     <button type="button" class="pay-btn pay-btn-confirm hidden" id="confirm-free">Confirm Registration</button>
 
     <div class="bank-details hidden" id="bank-details">
@@ -122,7 +128,7 @@
       </dl>
     </div>
 
-    <!-- Shown after either payment method is chosen, for the final step -->
+    <!-- Shown after a payment method is chosen, for the final step -->
     <button type="button" class="pay-btn pay-btn-confirm hidden" id="confirm-registration">Confirm Registration</button>
 
     <p class="payment-status" id="payment-status" aria-live="polite"></p>

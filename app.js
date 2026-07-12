@@ -28,8 +28,7 @@ const SEVAS = [
   { id: "panchamrutha",   name: "Panchamrutha",       desc: "Abhisheka with the five sacred nectars.",            price: 75 },
   { id: "paada-pooje",    name: "Paada Pooje",        desc: "Worship offered at the holy feet.",                  price: 51 },
   { id: "pushpalankara",  name: "Pushpalankara",      desc: "Flower decoration offered to the deity.",            price: 31 },
-  { id: "ashothara",      name: "Ashothara",          desc: "108 names chanting offering.",                       price: 21 },
-  { id: "free-darshana",  name: "Free Darshana",      desc: "Attend without sponsoring a paid seva.",             price: 0 }
+  { id: "ashothara",      name: "Ashothara",          desc: "108 names chanting offering.",                       price: 21 }
 ];
 
 // =====================================================================
@@ -109,24 +108,7 @@ function setQuantity(id, value) {
   const checkbox = document.getElementById(`select-${id}`);
   if (checkbox) checkbox.checked = quantities[id] > 0;
   renderSummary();
-  updateRegistrationLock();
   updatePaymentMethodVisibility();
-}
-
-// =====================================================================
-// 4b. REGISTRATION LOCK — greyed out until at least one seva is selected
-// =====================================================================
-
-const registrantFormSection = document.getElementById("registrant-form");
-const paymentSection = document.getElementById("payment");
-const lockableSections = [registrantFormSection, paymentSection];
-
-function updateRegistrationLock() {
-  const hasSelection = SEVAS.some(s => quantities[s.id] > 0);
-  lockableSections.forEach(section => section.classList.toggle("locked", !hasSelection));
-  registrantFormSection.querySelectorAll("input, textarea, select").forEach(el => {
-    el.disabled = !hasSelection;
-  });
 }
 
 // =====================================================================
@@ -149,7 +131,7 @@ function calculateTotal() {
 function renderSummary() {
   const selected = getSelectedSevas();
   if (selected.length === 0) {
-    summaryListEl.innerHTML = `<li class="summary-empty">No sevas selected yet</li>`;
+    summaryListEl.innerHTML = `<li class="summary-empty">No sevas selected — free darshana</li>`;
   } else {
     summaryListEl.innerHTML = selected.map(s => `
       <li><span>${escapeHtml(s.name)} × ${s.qty}</span><span>€${s.lineTotal.toFixed(2)}</span></li>
@@ -160,7 +142,6 @@ function renderSummary() {
 
 renderSevas();
 renderSummary();
-updateRegistrationLock();
 
 // =====================================================================
 // 6. FORM VALIDATION
@@ -170,21 +151,21 @@ const form = document.getElementById("details-form");
 const formErrorEl = document.getElementById("form-error");
 
 function getFormData() {
+  const firstVisitEl = form.querySelector('input[name="firstVisit"]:checked');
   return {
     fullName: form.fullName.value.trim(),
     phone: form.phone.value.trim(),
     email: form.email.value.trim(),
     address: form.address.value.trim(),
+    firstVisit: firstVisitEl ? firstVisitEl.value : "",
     participants: parseInt(form.participants.value, 10) || 1,
     consent: form.consent.checked
   };
 }
 
+// Sevas are optional now: no selection = free darshana. Only the personal
+// details are required.
 function validateForm() {
-  if (getSelectedSevas().length === 0) {
-    formErrorEl.textContent = "Please select at least one seva.";
-    return false;
-  }
   const data = getFormData();
   if (!data.fullName || !data.phone || !data.email || !data.address) {
     formErrorEl.textContent = "Please fill in all required fields.";
@@ -194,12 +175,16 @@ function validateForm() {
     formErrorEl.textContent = "Please enter a valid email address.";
     return false;
   }
+  if (!data.firstVisit) {
+    formErrorEl.textContent = "Please tell us whether this is your first visit.";
+    return false;
+  }
   if (data.participants < 1 || data.participants > 6) {
     formErrorEl.textContent = "Number of participants must be between 1 and 6.";
     return false;
   }
   if (!data.consent) {
-    formErrorEl.textContent = "Please confirm you agree to the data use note before paying.";
+    formErrorEl.textContent = "Please confirm you agree to the data use note before continuing.";
     return false;
   }
   formErrorEl.textContent = "";
@@ -209,12 +194,14 @@ function validateForm() {
 // =====================================================================
 // 7. PAYMENT BUTTONS — PayPal link + manual bank transfer
 // =====================================================================
-// Free Darshana (total €0) skips payment methods entirely and shows a
-// single "Confirm Registration" button. Any paid seva shows the PayPal /
-// Bank Transfer choice; picking either reveals the shared "Confirm
-// Registration" button as the final step once payment is done.
+// No seva selected (total €0) = free darshana: a single "Confirm
+// Registration" button confirms instantly with a QR + email. If any seva is
+// selected, the PayPal / Bank Transfer choice appears; picking either reveals
+// the "Confirm Registration" button, which files a PENDING request (no QR /
+// email) until an organiser confirms the payment in the admin dashboard.
 
 const paymentStatusEl = document.getElementById("payment-status");
+const paymentHintEl = document.getElementById("payment-hint");
 const paymentMethodsEl = document.getElementById("payment-methods");
 const payPaypalBtn = document.getElementById("pay-paypal");
 const payBankBtn = document.getElementById("pay-bank");
@@ -237,11 +224,15 @@ function buildPaypalMeUrl(amount) {
 updatePaymentMethodVisibility();
 
 function updatePaymentMethodVisibility() {
-  const hasSelection = getSelectedSevas().length > 0;
-  const isFreeOnly = hasSelection && calculateTotal() === 0;
+  const hasSeva = getSelectedSevas().length > 0;
 
-  paymentMethodsEl.classList.toggle("hidden", !hasSelection || isFreeOnly);
-  confirmFreeBtn.classList.toggle("hidden", !isFreeOnly);
+  // Seva selected → show payment methods; no seva → show the free confirm button.
+  paymentMethodsEl.classList.toggle("hidden", !hasSeva);
+  confirmFreeBtn.classList.toggle("hidden", hasSeva);
+
+  paymentHintEl.textContent = hasSeva
+    ? "Pay for your seva below, then confirm. We'll email your QR confirmation once we've verified the payment."
+    : "You haven't selected a seva — confirm below to register for a free darshana and get your entrance QR right away.";
 
   // Reset any in-progress payment step whenever the selection changes.
   bankDetailsEl.classList.add("hidden");
@@ -310,6 +301,7 @@ function completeRegistration(method, total, orderId = `REG-${Date.now()}`) {
     phone: formData.phone,
     email: formData.email,
     address: formData.address,
+    firstVisit: formData.firstVisit,
     participants: formData.participants,
     sevas: selected.map(s => ({ id: s.id, name: s.name, qty: s.qty, lineTotal: s.lineTotal })),
     totalAmount: total,
@@ -350,7 +342,10 @@ async function saveRegistration(registration, orderId) {
 }
 
 async function sendConfirmationEmail(registration, selected, total, orderId, checkinUrl) {
-  const sevaSummaryText = selected.map(s => `${s.name} x${s.qty} — €${s.lineTotal.toFixed(2)}`).join("\n");
+  // No seva = free darshana; give the email a non-empty summary line.
+  const sevaSummaryText = selected.length
+    ? selected.map(s => `${s.name} x${s.qty} — €${s.lineTotal.toFixed(2)}`).join("\n")
+    : "Free darshana (no seva)";
 
   try {
     // Content-Type text/plain avoids a CORS preflight, which Apps Script Web Apps

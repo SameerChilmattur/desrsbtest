@@ -134,7 +134,7 @@ function renderTable() {
     return `
       <tr>
         <td>${escapeHtml(date)}</td>
-        <td>${escapeHtml(r.fullName || "")}</td>
+        <td>${escapeHtml(r.fullName || "")}${r.firstVisit === "yes" ? ' <span class="badge badge-free">1st visit</span>' : ""}</td>
         <td class="admin-contact">${escapeHtml(r.email || "")}<br>${escapeHtml(r.phone || "")}</td>
         <td>${sevas}</td>
         <td>${escapeHtml(String(r.participants || 1))}</td>

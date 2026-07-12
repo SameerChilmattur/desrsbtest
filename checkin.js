@@ -33,9 +33,9 @@ function renderMessage(heading, body) {
 }
 
 function renderRegistration(reg) {
-  const sevaRows = reg.sevas
-    .map(s => `<li><span>${escapeHtml(s.name)} × ${s.qty}</span><span>€${s.lineTotal.toFixed(2)}</span></li>`)
-    .join("");
+  const sevaRows = (reg.sevas && reg.sevas.length)
+    ? reg.sevas.map(s => `<li><span>${escapeHtml(s.name)} × ${s.qty}</span><span>€${s.lineTotal.toFixed(2)}</span></li>`).join("")
+    : `<li><span>Free darshana</span><span>—</span></li>`;
   const statusLabel = STATUS_LABELS[reg.paymentStatus] || reg.paymentStatus;
 
   cardEl.innerHTML = `
